@@ -17,6 +17,11 @@ repositories {
 }
 
 buildscript {
+    ext {
+        artifactory_app_username = "insertyourusername"
+        artifactory_app_password = "insertyourpasswordhash"
+        artifactory_app_key = "insertyourkey"
+    }
     repositories {
         google()
         // For the RightMesh Gradle Plugin
