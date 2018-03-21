@@ -8,7 +8,7 @@ configurations.all {
 repositories {
     google()
     maven {
-        url "http://research.rightmesh.io/artifactory/libs-release-local"
+        url "https://research.rightmesh.io/artifactory/libs-release-local"
         credentials {
             username artifactory_app_username
             password artifactory_app_password
@@ -26,7 +26,7 @@ buildscript {
         google()
         // For the RightMesh Gradle Plugin
         maven {
-            url "http://research.rightmesh.io/artifactory/libs-release-local"
+            url "https://research.rightmesh.io/artifactory/libs-release-local"
             credentials {
                 username artifactory_app_username
                 password artifactory_app_password
@@ -76,7 +76,7 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:27.1.0'
 
-    compile('io.left.rightmesh:rightmesh-library-dev:0.4.0') {
+    compile('io.left.rightmesh:rightmesh-library-dev:0.4.4') {
         transitive true
     }
     compile 'com.android.support:multidex:1.0.3'
