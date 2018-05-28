@@ -17,14 +17,14 @@ import java.util.Date;
 
 import io.left.rightmesh.android.AndroidMeshManager;
 import io.left.rightmesh.android.MeshService.ServiceDisconnectedException;
-import io.left.rightmesh.id.MeshID;
+import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshManager.DataReceivedEvent;
 import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
 import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.RightMeshException;
 
-import static io.left.reflect.RightMeshRecipientComponent.shortenMeshID;
+import static io.left.reflect.RightMeshRecipientComponent.shortenMeshId;
 import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
 import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
 
@@ -32,34 +32,51 @@ import static io.left.rightmesh.mesh.MeshManager.PEER_CHANGED;
  * Simple app for testing RightMesh network reach.
  *
  * <p>
- *     Device A sends a ping to Device B over a mesh network containing a unique message (a
- *     simple timestamp). Device B receives it and echoes it back. Device A displays when the
- *     echoed message is received. This makes it easy to leave a device in one spot, roam around
- *     with another device, and test if the network still works.
+ * Device A sends a ping to Device B over a mesh network containing a unique message (a
+ * simple timestamp). Device B receives it and echoes it back. Device A displays when the
+ * echoed message is received. This makes it easy to leave a device in one spot, roam around
+ * with another device, and test if the network still works.
  * </p>
  */
 public class MainActivity extends AppCompatActivity implements MeshStateListener,
-        RightMeshRecipientComponent.RecipientChangedListener{
+        RightMeshRecipientComponent.RecipientChangedListener {
     private static final String TAG = MainActivity.class.getCanonicalName();
 
-    AndroidMeshManager mm = null;
+    /**
+     * MESH_PORT is the mesh port that this app is allowed to run on, according to your license key.
+     * See developer.rightmesh.io for more details.
+     */
+    private static final int MESH_PORT = 9876;
 
-    // ID of this device, stored for UI use.
-    MeshID deviceID = null;
+    AndroidMeshManager mm;
 
-    // ID of the peer to send pings to.
-    MeshID recipientID = null;
+    // Id of this device, stored for UI use.
+    MeshId deviceId;
+
+    // Id of the peer to send pings to.
+    MeshId recipientId;
 
     // Responsible for allowing the user to select the ping recipient.
-    RightMeshRecipientComponent component = null;
+    RightMeshRecipientComponent component;
 
     // Adapter for tracking views and the spinner it feeds, both mostly powered by `component`.
-    MeshIDAdapter peersListAdapter = null;
-    Spinner peersListView = null;
+    MeshIdAdapter peersListAdapter;
+    Spinner peersListView;
 
     // List and adapter tracking sent pings and whether or not they have been echoed.
-    ArrayList<String> pingsList = new ArrayList<>();
-    ArrayAdapter<String> pingsListAdapter = null;
+    ArrayList<String> pingsList;
+    ArrayAdapter<String> pingsListAdapter;
+
+    public MainActivity() {
+        pingsListAdapter = null;
+        pingsList = new ArrayList<>();
+        peersListView = null;
+        peersListAdapter = null;
+        component = null;
+        recipientId = null;
+        deviceId = null;
+        mm = null;
+    }
 
 
     //
@@ -97,16 +114,16 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         });
 
         // Set up the recipient selection spinner.
-        peersListAdapter = new MeshIDAdapter(this);
+        peersListAdapter = new MeshIdAdapter(this);
         component = (RightMeshRecipientComponent) getFragmentManager()
                 .findFragmentById(R.id.recipient_component);
         component.setSpinnerAdapter(peersListAdapter);
         component.setOnRecipientChangedListener(this);
-        peersListView = (Spinner) findViewById(R.id.spinner_recipient);
+        peersListView = findViewById(R.id.spinner_recipient);
 
         // Set up the log list.
         pingsListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, pingsList);
-        ListView log = (ListView) findViewById(R.id.listview_log);
+        ListView log = findViewById(R.id.listview_log);
         log.setAdapter(pingsListAdapter);
 
         // Initialize the mesh.
@@ -148,9 +165,10 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      */
     private void sendPing(View view) {
         DateFormat df = new SimpleDateFormat("MMM dd kk:mm:ss:SSSS");
+        // DateFormat df = DateFormat.getDateInstance();
 
-        // Null check, as recipientID has no default value.
-        if (recipientID != null) {
+        // Null check, as recipientId has no default value.
+        if (recipientId != null) {
             // Ping content is just the current time, so they are unique and give us some rough
             // concept of delay.
             String timestamp = df.format(new Date());
@@ -158,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
             try {
                 // Attempt to ping the currently selected recipient.
-                mm.sendDataReliable(recipientID, 4321, payload.getBytes());
+                mm.sendDataReliable(recipientId, MESH_PORT, payload.getBytes());
 
                 // Log the ping if sent successfully.
                 pingsList.add(0, timestamp);
@@ -173,15 +191,15 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     }
 
     /**
-     * Fired by the {@link RightMeshRecipientComponent} when the selected recipient ID has changed.
+     * Fired by the {@link RightMeshRecipientComponent} when the selected recipient Id has changed.
      *
      * <p>Stores the new recipient and updates the display.</p>
      *
      * @param recipient new recipient
      */
     @Override
-    public void onChange(MeshID recipient) {
-        recipientID = recipient;
+    public void onChange(MeshId recipient) {
+        recipientId = recipient;
         updateRecipientColour();
     }
 
@@ -194,26 +212,26 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      * Configures event handlers, binds to a port, and updates the label when the RightMesh library
      * is ready.
      *
-     * @param meshID ID of this device
-     * @param state new state of the RightMesh library
+     * @param meshId Id of this device
+     * @param state  new state of the RightMesh library
      */
     @Override
-    public void meshStateChanged(MeshID meshID, int state) {
-        deviceID = meshID;
+    public void meshStateChanged(MeshId meshId, int state) {
+        deviceId = meshId;
         if (state == MeshStateListener.SUCCESS) {
             try {
                 // Attempt to bind to a port.
-                MeshManager.Result r = mm.bind(4321);
+                MeshManager.Result r = mm.bind(MESH_PORT);
                 if (r.result == FAILURE) {
                     component.setStatus("Failed to bind.");
                     return;
                 } else {
-                    component.setStatus("This device's ID is " + shortenMeshID(deviceID));
+                    component.setStatus("This device's Id is " + shortenMeshId(deviceId));
                 }
 
-                // Initialize the peer adapter with this device's MeshID.
-                peersListAdapter.add(deviceID);
-                peersListAdapter.setDeviceID(deviceID);
+                // Initialize the peer adapter with this device's MeshId.
+                peersListAdapter.add(deviceId);
+                peersListAdapter.setDeviceId(deviceId);
                 runOnUiThread(() -> peersListAdapter.notifyDataSetChanged());
 
                 // Bind RightMesh event handlers.
@@ -244,8 +262,8 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             // Echo messages starting with '1'.
             String responsePayload = "0" + dataString.substring(1);
             try {
-                mm.sendDataReliable(dre.peerUuid, 4321, responsePayload.getBytes());
-                pingsList.add(0, "Echoed ping. (" + shortenMeshID(rme.peerUuid) + ")");
+                mm.sendDataReliable(dre.peerUuid, MESH_PORT, responsePayload.getBytes());
+                pingsList.add(0, "Echoed ping. (" + shortenMeshId(rme.peerUuid) + ")");
             } catch (ServiceDisconnectedException sde) {
                 Log.e(TAG, "Service disconnected before ping could be returned, with message: "
                         + sde.getMessage());
@@ -256,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             // Messages starting with '0' have already been echoed - update log.
             if (pingsList.contains(timestamp)) {
                 pingsList.set(pingsList.indexOf(timestamp),
-                        timestamp + " - Received! (" + shortenMeshID(rme.peerUuid) + ")");
+                        timestamp + " - Received! (" + shortenMeshId(rme.peerUuid) + ")");
             }
         }
 
@@ -272,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      * @param rme event passed from RightMesh
      */
     private void updateColoursOnPeerChanged(RightMeshEvent rme) {
-        if (rme.peerUuid.equals(recipientID)) {
+        if (rme.peerUuid.equals(recipientId)) {
             updateRecipientColour();
         }
     }
@@ -287,9 +305,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      * blue if the recipient is the current device.
      */
     private void updateRecipientColour() {
-        if (!recipientID.equals(deviceID)) {
+        if (!recipientId.equals(deviceId)) {
             int colour;
-            if (peersListAdapter.contains(recipientID)) {
+            if (peersListAdapter.contains(recipientId)) {
                 colour = R.color.green;
             } else {
                 colour = R.color.red;
