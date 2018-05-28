@@ -11,7 +11,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import io.left.rightmesh.id.MeshID;
+import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager.PeerChangedEvent;
 import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
 
@@ -27,7 +27,7 @@ public class RightMeshRecipientComponent extends Fragment
 
     // Keeps track of the most recently tracked recipient, in case it disconnects and is removed
     // from the list.
-    private MeshID recipientID = null;
+    private MeshId recipientId;
 
     // UI Elements
     private Spinner spinner;
@@ -35,9 +35,13 @@ public class RightMeshRecipientComponent extends Fragment
     private TextView networkStatusLabel;
 
     // Keeps track of peers and populates the spinner.
-    private MeshIDAdapter spinnerAdapter;
+    private MeshIdAdapter spinnerAdapter;
 
-    public void setSpinnerAdapter(MeshIDAdapter spinnerAdapter) {
+    public RightMeshRecipientComponent() {
+        recipientId = null;
+    }
+
+    public void setSpinnerAdapter(MeshIdAdapter spinnerAdapter) {
         this.spinnerAdapter = spinnerAdapter;
         spinner.setAdapter(spinnerAdapter);
     }
@@ -61,7 +65,7 @@ public class RightMeshRecipientComponent extends Fragment
      * of this fragment.
      */
     interface RecipientChangedListener {
-        void onChange(MeshID recipient);
+        void onChange(MeshId recipient);
     }
 
     private RecipientChangedListener onRecipientChangedListener = null;
@@ -77,15 +81,15 @@ public class RightMeshRecipientComponent extends Fragment
 
 
     //
-    // ANDROID EVENT HANDLING
+    // ANDROId EVENT HANDLING
     //
 
     /**
      * When the view is created, inflate the layout, save references to all of the elements, and
      * set the spinner event listener.
      *
-     * @param inflater to inflate the layout
-     * @param container to inflate the layout
+     * @param inflater           to inflate the layout
+     * @param container          to inflate the layout
      * @param savedInstanceState passed by Android
      * @return the inflated view
      */
@@ -95,11 +99,11 @@ public class RightMeshRecipientComponent extends Fragment
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.component_rightmesh, container);
 
-        spinner = (Spinner) rootView.findViewById(R.id.spinner_recipient);
+        spinner = rootView.findViewById(R.id.spinner_recipient);
         spinner.setOnItemSelectedListener(this);
 
-        deviceStatusLabel = (TextView) rootView.findViewById(R.id.textView_deviceStatus);
-        networkStatusLabel = (TextView) rootView.findViewById(R.id.textView_networkStatus);
+        deviceStatusLabel = rootView.findViewById(R.id.textView_deviceStatus);
+        networkStatusLabel = rootView.findViewById(R.id.textView_networkStatus);
 
         return rootView;
     }
@@ -108,15 +112,15 @@ public class RightMeshRecipientComponent extends Fragment
      * When the selected item in the recipient selection spinner changes, update the local variable
      * and notify the listener.
      *
-     * @param parent the spinner
-     * @param view view of the selected peer
+     * @param parent   the spinner
+     * @param view     view of the selected peer
      * @param position position of the selected peer in the list, used to get the actual object
-     * @param id passed by Android
+     * @param id       passed by Android
      */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        recipientID = spinnerAdapter.getItem(position);
-        onRecipientChangedListener.onChange(recipientID);
+        recipientId = spinnerAdapter.getItem(position);
+        onRecipientChangedListener.onChange(recipientId);
     }
 
     /**
@@ -145,7 +149,7 @@ public class RightMeshRecipientComponent extends Fragment
      */
     public void updatePeersList(RightMeshEvent rme) {
         PeerChangedEvent pce = (PeerChangedEvent) rme;
-        MeshID peer = rme.peerUuid;
+        MeshId peer = rme.peerUuid;
 
         if (pce.state == ADDED && !spinnerAdapter.contains(peer)) {
             // Add the peer to the list if it is new.
@@ -161,7 +165,7 @@ public class RightMeshRecipientComponent extends Fragment
             spinnerAdapter.remove(peer);
 
             // Toast if the recipient has been disconnected.
-            if (peer.equals(recipientID)) {
+            if (peer.equals(recipientId)) {
                 Toast.makeText(getActivity().getApplicationContext(),
                         "Recipient has disconnected.", Toast.LENGTH_SHORT).show();
             }
@@ -172,7 +176,7 @@ public class RightMeshRecipientComponent extends Fragment
         if (parentActivity != null) {
             if (spinnerAdapter.getCount() > 1) {
                 // Get string resource with number of connected devices.
-                int numConnectedDevices = spinnerAdapter.getCount()-1;
+                int numConnectedDevices = spinnerAdapter.getCount() - 1;
                 String newText = getResources().getQuantityString(
                         R.plurals.number_of_connected_devices,
                         numConnectedDevices, numConnectedDevices);
@@ -190,12 +194,12 @@ public class RightMeshRecipientComponent extends Fragment
     //
 
     /**
-     * Truncates MeshIDs to 8 characters long.
+     * Truncates MeshIds to 8 characters long.
      *
      * @param id to get string of
      * @return truncated string
      */
-    static String shortenMeshID(MeshID id) {
+    static String shortenMeshId(MeshId id) {
         return id.toString().substring(0, 10) + "...";
     }
 }

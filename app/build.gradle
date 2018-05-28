@@ -46,7 +46,7 @@ preBuild.dependsOn("rightmesh")
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "26.0.2"
+    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "io.left.reflect"
         minSdkVersion 14
@@ -76,7 +76,7 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:27.1.0'
 
-    compile('io.left.rightmesh:rightmesh-library-dev:0.4.4') {
+    compile('io.left.rightmesh:rightmesh-library-dev:0.5.0') {
         transitive true
     }
     compile 'com.android.support:multidex:1.0.3'
