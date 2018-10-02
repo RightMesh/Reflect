@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import io.left.rightmesh.android.AndroidMeshManager;
-import io.left.rightmesh.android.MeshService.ServiceDisconnectedException;
 import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager;
 import io.left.rightmesh.mesh.MeshManager.DataReceivedEvent;
 import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
 import io.left.rightmesh.mesh.MeshStateListener;
 import io.left.rightmesh.util.RightMeshException;
+import io.left.rightmesh.util.RightMeshException.RightMeshServiceDisconnectedException;
 
 import static io.left.reflect.RightMeshRecipientComponent.shortenMeshId;
 import static io.left.rightmesh.mesh.MeshManager.DATA_RECEIVED;
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         buttonSend.setOnLongClickListener(v -> {
             try {
                 mm.showSettingsActivity();
-            } catch (ServiceDisconnectedException sde) {
+            } catch (RightMeshServiceDisconnectedException sde) {
                 Log.e(TAG, "Service disconnected while displaying settings activity, with message: "
                         + sde.getMessage());
             } catch (RightMeshException rme) {
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         log.setAdapter(pingsListAdapter);
 
         // Initialize the mesh.
-        mm = AndroidMeshManager.getInstance(MainActivity.this, MainActivity.this, "PingTest");
+        mm = AndroidMeshManager.getInstance(MainActivity.this, MainActivity.this);
     }
 
     /**
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onResume();
         try {
             mm.resume();
-        } catch (ServiceDisconnectedException e) {
+        } catch (RightMeshServiceDisconnectedException e) {
             Log.e(TAG, "Service disconnected before resuming AndroidMeshManager, with message: "
                     + e.getMessage());
         }
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         super.onDestroy();
         try {
             mm.stop();
-        } catch (ServiceDisconnectedException e) {
+        } catch (RightMeshServiceDisconnectedException e) {
             Log.e(TAG, "Service disconnected before stopping AndroidMeshManager, with message: "
                     + e.getMessage());
         }
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 // Log the ping if sent successfully.
                 pingsList.add(0, timestamp);
                 runOnUiThread(() -> pingsListAdapter.notifyDataSetChanged());
-            } catch (ServiceDisconnectedException sde) {
+            } catch (RightMeshServiceDisconnectedException sde) {
                 Log.e(TAG, "Service disconnected before ping could be sent, with message: "
                         + sde.getMessage());
             } catch (RightMeshException rme) {
@@ -220,14 +220,8 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         deviceId = meshId;
         if (state == MeshStateListener.SUCCESS) {
             try {
-                // Attempt to bind to a port.
-                MeshManager.Result r = mm.bind(MESH_PORT);
-                if (r.result == FAILURE) {
-                    component.setStatus("Failed to bind.");
-                    return;
-                } else {
-                    component.setStatus("This device's Id is " + shortenMeshId(deviceId));
-                }
+                // Bind to a port.
+                mm.bind(MESH_PORT);
 
                 // Initialize the peer adapter with this device's MeshId.
                 peersListAdapter.add(deviceId);
@@ -238,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 mm.on(DATA_RECEIVED, this::receiveData);
                 mm.on(PEER_CHANGED, this::updateColoursOnPeerChanged);
                 mm.on(PEER_CHANGED, rme -> runOnUiThread(() -> component.updatePeersList(rme)));
-            } catch (ServiceDisconnectedException sde) {
+            } catch (RightMeshServiceDisconnectedException sde) {
                 Log.e(TAG, "Service disconnected while binding, with message: " + sde.getMessage());
             } catch (RightMeshException rme) {
                 Log.e(TAG, "Error occurred binding port, with message: " + rme.getMessage());
@@ -264,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             try {
                 mm.sendDataReliable(dre.peerUuid, MESH_PORT, responsePayload.getBytes());
                 pingsList.add(0, "Echoed ping. (" + shortenMeshId(rme.peerUuid) + ")");
-            } catch (ServiceDisconnectedException sde) {
+            } catch (RightMeshServiceDisconnectedException sde) {
                 Log.e(TAG, "Service disconnected before ping could be returned, with message: "
                         + sde.getMessage());
             } catch (RightMeshException rmx) {
