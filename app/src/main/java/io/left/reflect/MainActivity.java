@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 colour = R.color.red;
             }
             runOnUiThread(() -> ((TextView) peersListView.getSelectedView())
-                    .setTextColor(ContextCompat.getColor(MainActivity.this, colour)));
+                    .setTextColor(ContextCompat.getColor(this, colour)));
         }
     }
 }
