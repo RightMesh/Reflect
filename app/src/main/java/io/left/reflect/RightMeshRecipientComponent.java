@@ -15,8 +15,8 @@ import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager.PeerChangedEvent;
 import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
 
-import static io.left.rightmesh.mesh.PeerListener.ADDED;
-import static io.left.rightmesh.mesh.PeerListener.REMOVED;
+import static io.left.rightmesh.mesh.MeshManager.ADDED;
+import static io.left.rightmesh.mesh.MeshManager.REMOVED;
 
 /**
  * Fragment that keeps track of connected peers when registered to listen to PEER_CHANGED events,

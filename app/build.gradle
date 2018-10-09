@@ -1,14 +1,40 @@
 apply plugin: 'com.android.application'
+// NOTE: you MUST disable configureOnDemand for your compiler.
+// To do this in Android Studio: https://stackoverflow.com/a/49994951/4082582
+buildscript {
+    ext {
+        // define these variables in your personal ~/.gradle/gradle.properties
+        // for example:
 
-configurations.all {
-    setTransitive(true)
+
+        artifactory_app_username = "${rightmesh_artifactory_username}"
+        artifactory_app_password = "${rightmesh_artifactory_password}"
+        artifactory_app_key = "${rightmesh_reflect_key}"
+
+        maven_repo = "https://artifactory.rightmesh.io/artifactory/libs-local"
+    }
+    repositories {
+        maven {
+            url maven_repo
+            credentials {
+                username artifactory_app_username
+                password artifactory_app_password
+            }
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'io.left.rightmesh:rightmesh-plugin:1.6'
+    }
 }
+apply plugin: 'io.left.rightmesh.rightmesh-plugin'
+preBuild.dependsOn("rightmesh")
 
-// For the RightMesh library.
+
 repositories {
-    google()
+    mavenCentral()
     maven {
-        url "https://research.rightmesh.io/artifactory/libs-release-local"
+        url maven_repo
         credentials {
             username artifactory_app_username
             password artifactory_app_password
@@ -16,54 +42,17 @@ repositories {
     }
 }
 
-buildscript {
-    ext {
-        artifactory_app_username = "insertyourusername"
-        artifactory_app_password = "insertyourpasswordhash"
-        artifactory_app_key = "insertyourkey"
-    }
-    repositories {
-        google()
-        // For the RightMesh Gradle Plugin
-        maven {
-            url "https://research.rightmesh.io/artifactory/libs-release-local"
-            credentials {
-                username artifactory_app_username
-                password artifactory_app_password
-            }
-        }
-
-        // For RetroLambda.
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'io.left.rightmesh:rightmesh-plugin:1.6'
-        classpath 'me.tatarka:gradle-retrolambda:3.7.0'
-    }
-}
-apply plugin: 'io.left.rightmesh.rightmesh-plugin'
-preBuild.dependsOn("rightmesh")
-
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "io.left.reflect"
         minSdkVersion 14
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
-
-        // Needed to allow for a large number of methods.
         multiDexEnabled true
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
-    }
-
-    // Allows the use of lambda and method reference syntax.
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
@@ -71,13 +60,10 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:27.1.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'io.left.rightmesh:rightmesh-library:0.9.0'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
 
-    compile('io.left.rightmesh:rightmesh-library-dev:0.5.0') {
-        transitive true
-    }
-    compile 'com.android.support:multidex:1.0.3'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
