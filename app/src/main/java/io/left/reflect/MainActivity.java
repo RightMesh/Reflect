@@ -66,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     ArrayList<String> pingsList;
     ArrayAdapter<String> pingsListAdapter;
 
+    static final char ALREADY_ECHOED = '0';
+    static final char ECHO = '1';
+
     public MainActivity() {
         pingsListAdapter = null;
         pingsList = new ArrayList<>();
@@ -231,6 +234,10 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 meshManager.on(DATA_RECEIVED, this::receiveData);
                 meshManager.on(PEER_CHANGED, this::updateColoursOnPeerChanged);
                 meshManager.on(PEER_CHANGED, rme -> runOnUiThread(() -> component.updatePeersList(rme)));
+
+                TextView libraryStatus = findViewById(R.id.textView_deviceStatus);
+                libraryStatus.setText("Library has started with MeshId: " + meshManager.getUuid().toString());
+
             } catch (RightMeshServiceDisconnectedException sde) {
                 Log.e(TAG, "Service disconnected while binding, with message: " + sde.getMessage());
             } catch (RightMeshException rme) {
@@ -251,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         char echoBit = dataString.charAt(0); // `1` for initial requests, `0` for echoed requests.
         String timestamp = dataString.substring(1);
 
-        if (echoBit == '1') {
+        if (echoBit == ECHO) {
             // Echo messages starting with '1'.
             String responsePayload = "0" + dataString.substring(1);
             try {
@@ -263,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             } catch (RightMeshException rmx) {
                 Log.e(TAG, "Error occurred sending ping, with message: " + rmx.getMessage());
             }
-        } else if (echoBit == '0') {
+        } else if (echoBit == ALREADY_ECHOED) {
             // Messages starting with '0' have already been echoed - update log.
             if (pingsList.contains(timestamp)) {
                 pingsList.set(pingsList.indexOf(timestamp),
