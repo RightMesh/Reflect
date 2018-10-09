@@ -53,15 +53,6 @@ android {
         versionName "1.0"
         multiDexEnabled true
     }
-    dexOptions {
-        javaMaxHeapSize "4g"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
@@ -70,7 +61,7 @@ android {
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
-    implementation ('io.left.rightmesh:rightmesh-library:0.9.0')
+    implementation 'io.left.rightmesh:rightmesh-library:0.9.0'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
 
