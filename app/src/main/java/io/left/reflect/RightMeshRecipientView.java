@@ -1,11 +1,10 @@
 package io.left.reflect;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.os.Bundle;
+import android.content.Context;
+import android.support.constraint.ConstraintLayout;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -22,7 +21,7 @@ import static io.left.rightmesh.mesh.MeshManager.REMOVED;
  * Fragment that keeps track of connected peers when registered to listen to PEER_CHANGED events,
  * and allows the user to select one of these peers as a message recipient.
  */
-public class RightMeshRecipientComponent extends Fragment
+public class RightMeshRecipientView extends ConstraintLayout
         implements AdapterView.OnItemSelectedListener {
 
     // Keeps track of the most recently tracked recipient, in case it disconnects and is removed
@@ -37,8 +36,39 @@ public class RightMeshRecipientComponent extends Fragment
     // Keeps track of peers and populates the spinner.
     private MeshIdAdapter spinnerAdapter;
 
-    public RightMeshRecipientComponent() {
-        recipientId = null;
+    private RecipientChangedListener onRecipientChangedListener = null;
+
+    public RightMeshRecipientView(Context context) {
+        super(context);
+        init(context);
+    }
+
+    public RightMeshRecipientView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    public RightMeshRecipientView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    private void init(Context context) {
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.customview_component_rightmesh, this, true);
+
+        this.recipientId = null;
+
+        spinner = findViewById(R.id.spinner_recipient);
+        spinner.setOnItemSelectedListener(this);
+
+        deviceStatusLabel = findViewById(R.id.text_view_device_status);
+        networkStatusLabel = findViewById(R.id.textview_network_status);
+    }
+
+    public MeshId getRecipientId() {
+        return recipientId;
     }
 
     public void setSpinnerAdapter(MeshIdAdapter spinnerAdapter) {
@@ -52,23 +82,8 @@ public class RightMeshRecipientComponent extends Fragment
      * @param status new contents of the status label
      */
     public void setStatus(String status) {
-        getActivity().runOnUiThread(() -> deviceStatusLabel.setText(status));
+        deviceStatusLabel.setText(status);
     }
-
-
-    //
-    // EXTERNAL EVENT HANDLING
-    //
-
-    /**
-     * Interface for communicating with whatever party is interested in hearing about the output
-     * of this fragment.
-     */
-    interface RecipientChangedListener {
-        void onChange(MeshId recipient);
-    }
-
-    private RecipientChangedListener onRecipientChangedListener = null;
 
     /**
      * Set a listener for updates to the value of the selected recipient.
@@ -77,35 +92,6 @@ public class RightMeshRecipientComponent extends Fragment
      */
     public void setOnRecipientChangedListener(RecipientChangedListener listener) {
         onRecipientChangedListener = listener;
-    }
-
-
-    //
-    // ANDROId EVENT HANDLING
-    //
-
-    /**
-     * When the view is created, inflate the layout, save references to all of the elements, and
-     * set the spinner event listener.
-     *
-     * @param inflater           to inflate the layout
-     * @param container          to inflate the layout
-     * @param savedInstanceState passed by Android
-     * @return the inflated view
-     */
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-        View rootView = inflater.inflate(R.layout.component_rightmesh, container);
-
-        spinner = rootView.findViewById(R.id.spinner_recipient);
-        spinner.setOnItemSelectedListener(this);
-
-        deviceStatusLabel = rootView.findViewById(R.id.textView_deviceStatus);
-        networkStatusLabel = rootView.findViewById(R.id.textView_networkStatus);
-
-        return rootView;
     }
 
     /**
@@ -120,7 +106,7 @@ public class RightMeshRecipientComponent extends Fragment
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         recipientId = spinnerAdapter.getItem(position);
-        onRecipientChangedListener.onChange(recipientId);
+        onRecipientChangedListener.onRecipientChanged(recipientId);
     }
 
     /**
@@ -135,11 +121,6 @@ public class RightMeshRecipientComponent extends Fragment
             parent.setSelection(1);
         }
     }
-
-
-    //
-    // MESH EVENT HANDLING
-    //
 
     /**
      * Update the mesh peers available in the recipient selection spinner when mesh peers are
@@ -166,40 +147,26 @@ public class RightMeshRecipientComponent extends Fragment
 
             // Toast if the recipient has been disconnected.
             if (peer.equals(recipientId)) {
-                Toast.makeText(getActivity().getApplicationContext(),
+                Toast.makeText(getContext(),
                         "Recipient has disconnected.", Toast.LENGTH_SHORT).show();
             }
         }
 
         // Update the connected devices label if there are other devices connected.
-        Activity parentActivity = getActivity();
-        if (parentActivity != null) {
-            if (spinnerAdapter.getCount() > 1) {
-                // Get string resource with number of connected devices.
-                int numConnectedDevices = spinnerAdapter.getCount() - 1;
-                String newText = getResources().getQuantityString(
-                        R.plurals.number_of_connected_devices,
-                        numConnectedDevices, numConnectedDevices);
+        if (spinnerAdapter.getCount() > 1) {
+            // Get string resource with number of connected devices.
+            int numConnectedDevices = spinnerAdapter.getCount() - 1;
+            String newText = getResources().getQuantityString(
+                    R.plurals.number_of_connected_devices,
+                    numConnectedDevices, numConnectedDevices);
 
-                parentActivity.runOnUiThread(() -> networkStatusLabel.setText(newText));
-            } else {
-                parentActivity.runOnUiThread(() -> networkStatusLabel.setText(""));
-            }
+            networkStatusLabel.setText(newText);
+        } else {
+            networkStatusLabel.setText("");
         }
     }
 
-
-    //
-    // HELPER FUNCTIONS
-    //
-
-    /**
-     * Truncates MeshIds to 8 characters long.
-     *
-     * @param id to get string of
-     * @return truncated string
-     */
-    static String shortenMeshId(MeshId id) {
-        return id.toString().substring(0, 10) + "...";
+    public interface RecipientChangedListener {
+        void onRecipientChanged(MeshId recipient);
     }
 }
