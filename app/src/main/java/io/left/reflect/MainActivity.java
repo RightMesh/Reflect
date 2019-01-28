@@ -1,6 +1,7 @@
 package io.left.reflect;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -41,8 +42,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         RightMeshRecipientView.RecipientChangedListener{
     private static final String TAG = MainActivity.class.getCanonicalName();
 
-    
-
     AndroidMeshManager meshManager;
 
     // Id of this device, stored for UI use.
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
     // Adapter for tracking views and the spinner it feeds, both mostly powered by `viewRightMeshRecipient`.
     MeshIdAdapter peersListAdapter;
-    Spinner peersListView;
+    Spinner spinnerPeers;
 
     // List and adapter tracking sent pings and whether or not they have been echoed.
     ArrayList<String> pingsList;
@@ -68,17 +67,12 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
     public MainActivity() {
         pingsListAdapter = null;
         pingsList = new ArrayList<>();
-        peersListView = null;
+        spinnerPeers = null;
         peersListAdapter = null;
         recipientId = null;
         deviceId = null;
         meshManager = null;
     }
-
-
-    //
-    // ANDROID LIFECYCLE & EVENT HANDLING
-    //
 
     /**
      * Initializes list adapters, sets UI event handlers, and starts the RightMesh library
@@ -92,12 +86,12 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         setContentView(R.layout.activity_main);
 
         // Send a ping when the floating send button is tapped.
-        View buttonSend = findViewById(R.id.button_send);
-        buttonSend.setOnClickListener(this::sendPing);
+        FloatingActionButton btnSend = findViewById(R.id.button_send);
+        btnSend.setOnClickListener(this::sendPing);
 
         // Display the RightMesh settings activity when the send button is tapped and held.
-        buttonSend.setLongClickable(true);
-        buttonSend.setOnLongClickListener(v -> {
+        btnSend.setLongClickable(true);
+        btnSend.setOnLongClickListener(v -> {
             try {
                 meshManager.showSettingsActivity();
             } catch (RightMeshServiceDisconnectedException sde) {
@@ -115,15 +109,15 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         viewRightMeshRecipient = findViewById(R.id.view_rightmesh_recipient);
         viewRightMeshRecipient.setSpinnerAdapter(peersListAdapter);
         viewRightMeshRecipient.setOnRecipientChangedListener(this);
-        peersListView = findViewById(R.id.spinner_recipient);
+        spinnerPeers = findViewById(R.id.spinner_recipient);
 
         // Set up the rvLogs list.
         pingsListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, pingsList);
-        ListView rvLogs = findViewById(R.id.recyclerview_logs);
-        rvLogs.setAdapter(pingsListAdapter);
+        ListView lvLogs = findViewById(R.id.listview_logs);
+        lvLogs.setAdapter(pingsListAdapter);
 
         // Initialize the mesh.
-        meshManager = AndroidMeshManager.getInstance(MainActivity.this, MainActivity.this);
+        meshManager = AndroidMeshManager.getInstance(getApplicationContext(), this);
     }
 
     /**
@@ -133,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      */
     private void sendPing(View view) {
         DateFormat df = new SimpleDateFormat("MMM dd kk:mm:ss:SSSS");
-        // DateFormat df = DateFormat.getDateInstance();
 
         // Null check, as recipientId has no default value.
         if (recipientId != null) {
@@ -148,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
                 // Log the ping if sent successfully.
                 pingsList.add(0, timestamp);
-                runOnUiThread(() -> pingsListAdapter.notifyDataSetChanged());
+                pingsListAdapter.notifyDataSetChanged();
             } catch (RightMeshServiceDisconnectedException sde) {
                 Log.e(TAG, "Service disconnected before ping could be sent, with message: "
                         + sde.getMessage());
@@ -194,12 +187,12 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
                 // Initialize the peer adapter with this device's MeshId.
                 peersListAdapter.add(deviceId);
                 peersListAdapter.setDeviceId(deviceId);
-                runOnUiThread(() -> peersListAdapter.notifyDataSetChanged());
+                peersListAdapter.notifyDataSetChanged();
 
                 // Bind RightMesh event handlers.
                 meshManager.on(DATA_RECEIVED, this::receiveData);
                 meshManager.on(PEER_CHANGED, this::updateColoursOnPeerChanged);
-                meshManager.on(PEER_CHANGED, rme -> runOnUiThread(() -> viewRightMeshRecipient.updatePeersList(rme)));
+                meshManager.on(PEER_CHANGED, rme -> viewRightMeshRecipient.updatePeersList(rme));
 
                 TextView libraryStatus = findViewById(R.id.text_view_device_status);
                 libraryStatus.setText("Library has started with MeshId: " + meshManager.getUuid().toString());
@@ -246,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         // Null-check the adapter, as events may fire when the activity doesn't exist.
         if (pingsListAdapter != null) {
-            runOnUiThread(() -> pingsListAdapter.notifyDataSetChanged());
+            pingsListAdapter.notifyDataSetChanged();
         }
     }
 
@@ -305,8 +298,8 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
             } else {
                 colour = R.color.red;
             }
-            runOnUiThread(() -> ((TextView) peersListView.getSelectedView())
-                    .setTextColor(ContextCompat.getColor(this, colour)));
+            ((TextView) spinnerPeers.getSelectedView())
+                    .setTextColor(ContextCompat.getColor(this, colour));
         }
     }
 }
