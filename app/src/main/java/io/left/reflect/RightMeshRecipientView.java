@@ -1,5 +1,8 @@
 package io.left.reflect;
 
+import static io.left.rightmesh.mesh.MeshManager.ADDED;
+import static io.left.rightmesh.mesh.MeshManager.REMOVED;
+
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
@@ -13,9 +16,6 @@ import android.widget.Toast;
 import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager.PeerChangedEvent;
 import io.left.rightmesh.mesh.MeshManager.RightMeshEvent;
-
-import static io.left.rightmesh.mesh.MeshManager.ADDED;
-import static io.left.rightmesh.mesh.MeshManager.REMOVED;
 
 /**
  * Custom view that keeps track of connected peers when registered to listen to PEER_CHANGED events,

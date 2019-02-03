@@ -9,13 +9,15 @@ public class MeshHelper {
     private MeshHelper() {
     }
 
-    public static MeshHelper getInstance(){
-        if(instance == null){
+    /**
+     * Get Singleton instance.
+     * @return Meshhelper
+     */
+    public static MeshHelper getInstance() {
+        if (instance == null) {
             //synchronized block to remove overhead
-            synchronized (MeshHelper.class)
-            {
-                if(instance==null)
-                {
+            synchronized (MeshHelper.class) {
+                if (instance == null) {
                     // if instance is null, initialize
                     instance = new MeshHelper();
                 }
