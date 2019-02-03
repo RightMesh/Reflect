@@ -18,7 +18,7 @@ import static io.left.rightmesh.mesh.MeshManager.ADDED;
 import static io.left.rightmesh.mesh.MeshManager.REMOVED;
 
 /**
- * Fragment that keeps track of connected peers when registered to listen to PEER_CHANGED events,
+ * Custom view that keeps track of connected peers when registered to listen to PEER_CHANGED events,
  * and allows the user to select one of these peers as a message recipient.
  */
 public class RightMeshRecipientView extends ConstraintLayout
@@ -38,24 +38,51 @@ public class RightMeshRecipientView extends ConstraintLayout
 
     private RecipientChangedListener onRecipientChangedListener = null;
 
+    /**
+     * Used when instantiating Views programmatically.
+     *
+     * @param context View context
+     */
     public RightMeshRecipientView(Context context) {
         super(context);
         init(context);
     }
 
+    /**
+     * {@link RightMeshRecipientView} constructor<br>.
+     *
+     * Trigger in xml declaration.
+     *
+     * @param context View context
+     * @param attrs attribute
+     */
     public RightMeshRecipientView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
+    /**
+     * {@link RightMeshRecipientView} constructor<br>.
+     *
+     * Trigger in xml declaration with android:style attribute
+     *
+     * @param context View context
+     * @param attrs Attribute
+     * @param defStyleAttr applied style
+     */
     public RightMeshRecipientView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
 
+    /**
+     * Init view.
+     * @param context View context
+     */
     private void init(Context context) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        assert inflater != null;
         inflater.inflate(R.layout.customview_component_rightmesh, this, true);
 
         this.recipientId = null;
@@ -67,10 +94,18 @@ public class RightMeshRecipientView extends ConstraintLayout
         networkStatusLabel = findViewById(R.id.textview_network_status);
     }
 
+    /**
+     * Get recipient id.
+     * @return MeshId
+     */
     public MeshId getRecipientId() {
         return recipientId;
     }
 
+    /**
+     * Set adapter of spinner.
+     * @param spinnerAdapter Spinner Adapter
+     */
     public void setSpinnerAdapter(MeshIdAdapter spinnerAdapter) {
         this.spinnerAdapter = spinnerAdapter;
         spinner.setAdapter(spinnerAdapter);
@@ -167,6 +202,13 @@ public class RightMeshRecipientView extends ConstraintLayout
     }
 
     public interface RecipientChangedListener {
+        /**
+         * When the selected recipient Id has changed.
+         *
+         * Stores the new recipient and updates the display.
+         *
+         * @param recipient new recipient
+         */
         void onRecipientChanged(MeshId recipient);
     }
 }

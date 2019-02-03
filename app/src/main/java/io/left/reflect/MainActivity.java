@@ -86,12 +86,12 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
         setContentView(R.layout.activity_main);
 
         // Send a ping when the floating send button is tapped.
-        FloatingActionButton btnSend = findViewById(R.id.button_send);
-        btnSend.setOnClickListener(this::sendPing);
+        FloatingActionButton buttonSend = findViewById(R.id.button_send);
+        buttonSend.setOnClickListener(this::sendPing);
 
         // Display the RightMesh settings activity when the send button is tapped and held.
-        btnSend.setLongClickable(true);
-        btnSend.setOnLongClickListener(v -> {
+        buttonSend.setLongClickable(true);
+        buttonSend.setOnLongClickListener(v -> {
             try {
                 meshManager.showSettingsActivity();
             } catch (RightMeshServiceDisconnectedException sde) {
@@ -113,8 +113,8 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
 
         // Set up the rvLogs list.
         pingsListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, pingsList);
-        ListView lvLogs = findViewById(R.id.listview_logs);
-        lvLogs.setAdapter(pingsListAdapter);
+        ListView listViewLogs = findViewById(R.id.listview_logs);
+        listViewLogs.setAdapter(pingsListAdapter);
 
         // Initialize the mesh.
         meshManager = AndroidMeshManager.getInstance(getApplicationContext(), this);
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements MeshStateListener
      *
      * @param view passed by Android
      */
-    private void sendPing(View view) {
+    public void sendPing(View view) {
         DateFormat df = new SimpleDateFormat("MMM dd kk:mm:ss:SSSS");
 
         // Null check, as recipientId has no default value.
