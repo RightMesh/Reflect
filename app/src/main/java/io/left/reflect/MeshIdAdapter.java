@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import io.left.reflect.helper.MeshHelper;
 import io.left.rightmesh.id.MeshId;
 
 /**
@@ -32,7 +33,6 @@ class MeshIdAdapter extends ArrayAdapter<MeshId> {
     void setDeviceId(MeshId deviceId) {
         this.deviceId = deviceId;
     }
-
 
     //
     // VIEW GENERATION METHODS
@@ -75,13 +75,13 @@ class MeshIdAdapter extends ArrayAdapter<MeshId> {
             String text; // Text for the item in the list.
             int colour;  // Colour for the text in the list.
 
-            if (deviceId != null && item.equals(deviceId)) {
+            if (item.equals(deviceId)) {
                 // Change text colour if is the current device's Id.
                 text = "This Device";
                 colour = R.color.blue;
             } else {
                 // Otherwise, simply make the MeshId more readable and use the theme default colour.
-                text = RightMeshRecipientComponent.shortenMeshId(item);
+                text = MeshHelper.getInstance().shortenMeshId(item);
                 colour = android.R.color.primary_text_light;
             }
             view.setText(text);

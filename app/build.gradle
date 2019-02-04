@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.application'
-    id 'io.left.rightmesh.rightmesh-plugin' version '1.8.1'
+    id 'io.left.rightmesh.rightmesh-plugin' version '1.8.4'
 }
 
 rightmesh {
@@ -46,9 +46,11 @@ android {
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
-    implementation("io.left.rightmesh:lib-rightmesh-android:0.10.0")
+    implementation ("io.left.rightmesh:lib-rightmesh-android:0.10.0")
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
