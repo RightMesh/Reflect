@@ -4,7 +4,6 @@ import static io.left.rightmesh.mesh.MeshManager.ADDED;
 import static io.left.rightmesh.mesh.MeshManager.REMOVED;
 
 import android.content.Context;
-import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import io.left.rightmesh.id.MeshId;
 import io.left.rightmesh.mesh.MeshManager.PeerChangedEvent;
