@@ -283,10 +283,10 @@ public class MainActivity extends AppCompatActivity implements
      * This method and {@link MainActivity#setRightMeshConnector(RightMeshConnector)} help for
      * testing with mocked objects.
      *
-     * @return {@link RightMeshConnector} which works on {@link MainActivity#MESH_PORT)
+     * @return {@link RightMeshConnector} which works on MESH_PORT
      */
-    public RightMeshConnector getRightMeshConnector(){
-        if(rightMeshConnector == null){
+    public RightMeshConnector getRightMeshConnector() {
+        if (rightMeshConnector == null) {
             rightMeshConnector = new RightMeshConnector(MESH_PORT);
         }
         return rightMeshConnector;
@@ -294,18 +294,21 @@ public class MainActivity extends AppCompatActivity implements
 
     /**
      * Using this method to assign mocked object to RightMeshConnector.
+     *
      * @param rightMeshConnector Mocked object.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    public void setRightMeshConnector(RightMeshConnector rightMeshConnector){
+    public void setRightMeshConnector(RightMeshConnector rightMeshConnector) {
         this.rightMeshConnector = rightMeshConnector;
     }
+
     /**
      * Using this method to assign mocked object to recipientId.
+     *
      * @param recipientId Mocked object.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    public void setRecipientId(MeshId recipientId){
+    public void setRecipientId(MeshId recipientId) {
         this.recipientId = recipientId;
     }
 }

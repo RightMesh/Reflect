@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.Application;
 import android.view.View;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.IntegerRes;
+
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -11,9 +14,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
-
-import androidx.annotation.IdRes;
-import androidx.annotation.IntegerRes;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(application = Application.class,

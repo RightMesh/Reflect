@@ -3,7 +3,6 @@ package io.left.reflect;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import android.Manifest;
@@ -14,25 +13,21 @@ import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import io.left.rightmesh.id.MeshId;
+import io.left.rightmesh.mesh.MeshManager;
+import io.left.rightmesh.util.RightMeshException;
+
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.internal.LocalPermissionGranter;
 import org.robolectric.annotation.Config;
-
-import java.util.Date;
-
-import io.left.rightmesh.id.MeshId;
-import io.left.rightmesh.mesh.MeshManager;
-import io.left.rightmesh.util.RightMeshException;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(application = Application.class,
@@ -64,7 +59,7 @@ public class MainActivityTest extends AndroidTest<MainActivity> {
     }
 
     /**
-     * Assign mocked objects to Activity
+     * Assign mocked objects to Activity.
      */
     @Override
     protected void setMockObjectActivity() {
@@ -116,8 +111,8 @@ public class MainActivityTest extends AndroidTest<MainActivity> {
         //Init DataReceivedEvent with EchoBit = ECHO
         MeshManager.DataReceivedEvent rme = new MeshManager
                 .DataReceivedEvent(MainActivity.MESH_PORT,
-                meshId,
-                new byte[]{MainActivity.ECHO, 2});
+                mock(MeshId.class),
+                new byte[]{MainActivity.ECHO, 1});
 
         Assert.assertNotNull(listViewLogs.getAdapter());
         int numberLogs = listViewLogs.getAdapter().getCount();
@@ -139,7 +134,7 @@ public class MainActivityTest extends AndroidTest<MainActivity> {
         //Init DataReceivedEvent with EchoBit = ALREADY_ECHOED
         MeshManager.DataReceivedEvent rme = new MeshManager
                 .DataReceivedEvent(MainActivity.MESH_PORT,
-                meshId,
+                mock(MeshId.class),
                 new byte[]{MainActivity.ALREADY_ECHOED, 2});
 
         Assert.assertNotNull(listViewLogs.getAdapter());
