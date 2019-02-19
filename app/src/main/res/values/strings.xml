@@ -2,6 +2,7 @@
     <string name="app_name">Reflect</string>
     <string name="target_label">Target:</string>
     <string name="status_label_waiting">Waiting for library to initialize…</string>
+    <string name="lib_start_with_meshid">Library has started with MeshId:</string>
     <plurals name="number_of_connected_devices">
         <item quantity="one">1 device connected.</item>
         <item quantity="other">%d devices connected.</item>

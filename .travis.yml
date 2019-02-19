@@ -1,6 +1,6 @@
 language: android
 sudo: required
-jdk: oraclejdk8
+jdk: openjdk8
 env:
   global:
   - ANDROID_API=28
@@ -46,9 +46,9 @@ android:
 jobs:
   include:
   - stage: Build
-    script: ./gradlew clean build -xlint -PdisablePreDex $PROPERTIES
-  - stage: Checkstyle
-    script: ./gradlew checkstyle -xlint $PROPERTIES
+    script: ./gradlew clean build -xlint -xtest -PdisablePreDex $PROPERTIES
+  - stage: checkstyle
+    script: ./gradlew checkstyle -xlint -xtest  $PROPERTIES
   - stage: Test
     name: Unit Tests
-    script: ./gradlew test -xlint $PROPERTIES
+    script: ./gradlew test $PROPERTIES

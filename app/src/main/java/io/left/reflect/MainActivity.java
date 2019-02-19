@@ -8,6 +8,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -27,8 +28,8 @@ import java.util.Date;
 
 /**
  * Simple app for testing RightMesh network reach.
- * <p>
- * <p>
+ *
+ *
  * Device A sends a ping to Device B over a mesh network containing a unique message (a
  * simple timestamp). Device B receives it and echoes it back. Device A displays when the
  * echoed message is received. This makes it easy to leave a device in one spot, roam around
@@ -52,22 +53,21 @@ public class MainActivity extends AppCompatActivity implements
     // Id of the peer to send pings to.
     MeshId recipientId;
 
-    // Responsible for allowing the user to select the ping recipient.
-    RightMeshRecipientView viewRightMeshRecipient;
-
     // Adapter for tracking views and the spinner it
     // feeds, both mostly powered by `viewRightMeshRecipient`.
     MeshIdAdapter peersListAdapter;
-    Spinner spinnerPeers;
 
     // List and adapter tracking sent pings and whether or not they have been echoed.
     ArrayList<String> pingsList;
     ArrayAdapter<String> pingsListAdapter;
 
-    static final char ALREADY_ECHOED = '0';
-    static final char ECHO = '1';
+    public static final char ALREADY_ECHOED = '0';
+    public static final char ECHO = '1';
 
     private TextView tvLibStatus;
+    // Responsible for allowing the user to select the ping recipient.
+    RightMeshRecipientView viewRightMeshRecipient;
+    Spinner spinnerPeers;
 
     /**
      * MainActivity construction.
@@ -124,13 +124,12 @@ public class MainActivity extends AppCompatActivity implements
      * Initialize and connect RightMesh.
      */
     private void initRightMeshConnector() {
-        rightMeshConnector = new RightMeshConnector(MESH_PORT);
-        rightMeshConnector.setOnPeerChangedListener(event -> {
+        getRightMeshConnector().setOnPeerChangedListener(event -> {
             viewRightMeshRecipient.updatePeersList(event);
             updateColoursOnPeerChanged(event);
         });
-        rightMeshConnector.setOnDataReceiveListener(this::receiveData);
-        rightMeshConnector.setOnConnectSuccessListener(meshId -> {
+        getRightMeshConnector().setOnDataReceiveListener(this::receiveData);
+        getRightMeshConnector().setOnConnectSuccessListener(meshId -> {
             deviceId = meshId;
             // Initialize the peer adapter with this device's MeshId.
             peersListAdapter.add(deviceId);
@@ -138,10 +137,10 @@ public class MainActivity extends AppCompatActivity implements
             peersListAdapter.notifyDataSetChanged();
 
 
-            tvLibStatus.setText("Library has started with MeshId: "
-                    + rightMeshConnector.getUuid().toString());
+            tvLibStatus.setText(getString(R.string.lib_start_with_meshid)
+                    + getRightMeshConnector().getUuid().toString());
         });
-        rightMeshConnector.connect(getApplicationContext());
+        getRightMeshConnector().connect(getApplicationContext());
     }
 
     /**
@@ -161,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements
 
             try {
                 // Attempt to ping the currently selected recipient.
-                rightMeshConnector.sendDataReliable(recipientId, payload.getBytes());
+                getRightMeshConnector().sendDataReliable(recipientId, payload.getBytes());
 
                 // Log the ping if sent successfully.
                 pingsList.add(0, timestamp);
@@ -178,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements
     /**
      * Fired by the {@link RightMeshRecipientView} when the selected recipient Id has changed.
      *
-     * <p>Stores the new recipient and updates the display.</p>
+     * Stores the new recipient and updates the display.
      *
      * @param recipient new recipient
      */
@@ -204,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements
             // Echo messages starting with '1'.
             String responsePayload = "0" + dataString.substring(1);
             try {
-                rightMeshConnector.sendDataReliable(dre.peerUuid, responsePayload.getBytes());
+                getRightMeshConnector().sendDataReliable(dre.peerUuid, responsePayload.getBytes());
                 pingsList.add(0, "Echoed ping. ("
                         + MeshHelper.getInstance().shortenMeshId(rme.peerUuid) + ")");
             } catch (RightMeshServiceDisconnectedException sde) {
@@ -245,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        rightMeshConnector.resume();
+        getRightMeshConnector().resume();
     }
 
     /**
@@ -254,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        rightMeshConnector.stop();
+        getRightMeshConnector().stop();
     }
 
     //
@@ -276,5 +275,40 @@ public class MainActivity extends AppCompatActivity implements
             ((TextView) spinnerPeers.getSelectedView())
                     .setTextColor(ContextCompat.getColor(this, colour));
         }
+    }
+
+    /**
+     * Get RightMeshConnector.
+     *
+     * This method and {@link MainActivity#setRightMeshConnector(RightMeshConnector)} help for
+     * testing with mocked objects.
+     *
+     * @return {@link RightMeshConnector} which works on MESH_PORT
+     */
+    public RightMeshConnector getRightMeshConnector() {
+        if (rightMeshConnector == null) {
+            rightMeshConnector = new RightMeshConnector(MESH_PORT);
+        }
+        return rightMeshConnector;
+    }
+
+    /**
+     * Using this method to assign mocked object to RightMeshConnector.
+     *
+     * @param rightMeshConnector Mocked object.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public void setRightMeshConnector(RightMeshConnector rightMeshConnector) {
+        this.rightMeshConnector = rightMeshConnector;
+    }
+
+    /**
+     * Using this method to assign mocked object to recipientId.
+     *
+     * @param recipientId Mocked object.
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    public void setRecipientId(MeshId recipientId) {
+        this.recipientId = recipientId;
     }
 }
