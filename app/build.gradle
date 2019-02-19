@@ -47,6 +47,11 @@ android {
     lintOptions {
         abortOnError false
     }
+    testOptions{
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 configurations {
     all*.exclude group: 'com.google.guava', module: 'listenablefuture'
@@ -64,5 +69,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:2.23.0'
     testImplementation 'androidx.arch.core:core-testing:2.0.0' //testing ViewModel
 
+    //UI Test
     testImplementation 'org.robolectric:robolectric:4.1'
+    testImplementation 'com.android.support.test:runner:1.0.2'
 }
