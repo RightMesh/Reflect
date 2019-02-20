@@ -1,4 +1,4 @@
-# Reflect
+# Reflect [![Build status](https://travis-ci.com/RightMesh/Reflect.svg?branch=master)](https://travis-ci.com/RightMesh/Reflect)
 
 ## What is this?
 
