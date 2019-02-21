@@ -33,7 +33,7 @@ android:
   - android-sdk-license-.+
   - google-gdk-license-.+
   before_install:
-  - mkdir "$ANDROID_HOME/licenses" || true
+  - mkdir -p "$ANDROID_HOME/licenses"
   - echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" >"$ANDROID_HOME/licenses/android-sdk-license"
   - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
   - "./gradlew dependencies || true"
@@ -45,10 +45,10 @@ android:
   - adb shell input keyevent 82 #Unlock phone before using
 jobs:
   include:
-  - stage: Build
-    script: ./gradlew clean build -xlint -xtest -PdisablePreDex $PROPERTIES
-  - stage: validation
-    script: ./gradlew checkstyle pmd findbugs -xlint -xtest  $PROPERTIES
+  - stage: Validation
+    script: ./gradlew checkstyle pmd  $PROPERTIES
+  - stage: Assemble
+    script: ./gradlew assemble -xlint -xtest -PdisablePreDex $PROPERTIES
   - stage: Test
     name: Unit Tests
-    script: ./gradlew test $PROPERTIES
+    script: ./gradlew test findbugs $PROPERTIES

@@ -3,7 +3,8 @@ apply plugin: 'findbugs'
 
 task findbugs(type: FindBugs) {
     description 'Check potential bugs'
-    group 'verification'
+    group 'test'
+    dependsOn assemble
 
     classes = files("$project.buildDir/intermediates/javac")
     source fileTree('src/main/java/')
