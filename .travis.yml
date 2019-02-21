@@ -47,8 +47,8 @@ jobs:
   include:
   - stage: Build
     script: ./gradlew clean build -xlint -xtest -PdisablePreDex $PROPERTIES
-  - stage: checkstyle
-    script: ./gradlew checkstyle -xlint -xtest  $PROPERTIES
+  - stage: validation
+    script: ./gradlew checkstyle pmd findbugs -xlint -xtest  $PROPERTIES
   - stage: Test
     name: Unit Tests
     script: ./gradlew test $PROPERTIES

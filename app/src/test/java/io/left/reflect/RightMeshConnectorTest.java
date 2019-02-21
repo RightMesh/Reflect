@@ -18,6 +18,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 @RunWith(MockitoJUnitRunner.class)
 public class RightMeshConnectorTest {
     private static final int MESH_PORT = 9876;
@@ -79,9 +82,13 @@ public class RightMeshConnectorTest {
     public void sendDataReliable_isCalled() throws RightMeshException {
         String payload = "abc";
 
-        spyRightMeshConnector.sendDataReliable(meshId, payload.getBytes());
+        spyRightMeshConnector.sendDataReliable(meshId,
+                payload.getBytes(Charset.forName("UTF-8")));
 
-        verify(androidMeshManager).sendDataReliable(any(), anyInt(), eq(payload.getBytes()));
-        verify(spyRightMeshConnector).sendDataReliable(any(), eq(payload.getBytes()));
+        verify(androidMeshManager).sendDataReliable(any(),
+                anyInt(),
+                eq(payload.getBytes(Charset.forName("UTF-8"))));
+        verify(spyRightMeshConnector).sendDataReliable(any(),
+                eq(payload.getBytes(Charset.forName("UTF-8"))));
     }
 }

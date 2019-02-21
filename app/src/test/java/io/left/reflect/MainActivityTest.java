@@ -44,12 +44,8 @@ public class MainActivityTest extends AndroidTest<MainActivity> {
     private ArgumentCaptor<RightMeshConnector.OnConnectSuccessListener> onConnectSuccess;
     @Captor
     private ArgumentCaptor<RightMeshConnector.OnDataReceiveListener> onDataReceive;
-    @Captor
-    private ArgumentCaptor<RightMeshConnector.OnPeerChangedListener> onPeerChanged;
 
     private TextView tvLibStatus;
-    private RightMeshRecipientView viewRightMeshRecipient;
-    private Spinner spinnerPeers;
     private FloatingActionButton buttonSend;
     private ListView listViewLogs;
 
@@ -83,8 +79,6 @@ public class MainActivityTest extends AndroidTest<MainActivity> {
         localPermissionGranter.requestPermissions();
 
         tvLibStatus = findViewById(R.id.text_view_device_status);
-        viewRightMeshRecipient = findViewById(R.id.view_rightmesh_recipient);
-        spinnerPeers = findViewById(R.id.spinner_recipient);
         buttonSend = findViewById(R.id.button_send);
         listViewLogs = findViewById(R.id.listview_logs);
     }

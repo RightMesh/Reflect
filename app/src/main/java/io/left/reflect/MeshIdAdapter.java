@@ -18,6 +18,11 @@ import io.left.rightmesh.id.MeshId;
 class MeshIdAdapter extends ArrayAdapter<MeshId> {
 
     /**
+     * Id of the peer to treat as this device (i.e. for styling and naming).
+     */
+    private MeshId deviceId;
+
+    /**
      * Inflates the parent {@link ArrayAdapter} and stores the context for use loading colours.
      *
      * @param context app context, need by parent class
@@ -25,11 +30,6 @@ class MeshIdAdapter extends ArrayAdapter<MeshId> {
     MeshIdAdapter(@NonNull Context context) {
         super(context, android.R.layout.simple_spinner_dropdown_item);
     }
-
-    /**
-     * Id of the peer to treat as this device (i.e. for styling and naming).
-     */
-    private MeshId deviceId;
 
     void setDeviceId(MeshId deviceId) {
         this.deviceId = deviceId;

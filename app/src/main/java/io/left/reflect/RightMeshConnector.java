@@ -24,7 +24,7 @@ import io.left.rightmesh.util.RightMeshException;
 public class RightMeshConnector implements MeshStateListener {
     private static final String TAG = RightMeshConnector.class.getCanonicalName();
 
-    private int meshPort;
+    private final int meshPort;
 
     // Interface object for the RightMesh library.
     private AndroidMeshManager androidMeshManager;
