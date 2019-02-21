@@ -27,6 +27,10 @@ repositories {
     }
 }
 
+apply from: 'checkstyle.gradle'
+apply from: 'findbugs.gradle'
+apply from: 'pmd.gradle'
+
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
@@ -42,15 +46,40 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        abortOnError false
+    }
+    testOptions{
+        unitTests {
+            includeAndroidResources = true
+        }
+        unitTests.all {
+            // All the usual Gradle options.
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen {false}
+                showStandardStreams = true
+            }
+        }
+    }
 }
-
+configurations {
+    all*.exclude group: 'com.google.guava', module: 'listenablefuture'
+}
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
-    implementation ("io.left.rightmesh:lib-rightmesh-android:0.10.0")
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:recyclerview-v7:28.0.0'
-
-
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation ("io.left.rightmesh:lib-rightmesh-android:0.10.0")
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha02'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha02'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.23.0'
+    testImplementation 'androidx.arch.core:core-testing:2.0.0' //testing ViewModel
+
+    //UI Test
+    testImplementation 'org.robolectric:robolectric:4.1'
+    testImplementation 'com.android.support.test:runner:1.0.2'
 }

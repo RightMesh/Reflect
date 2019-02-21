@@ -1,12 +1,13 @@
 package io.left.reflect;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import io.left.reflect.helper.MeshHelper;
 import io.left.rightmesh.id.MeshId;
@@ -17,6 +18,11 @@ import io.left.rightmesh.id.MeshId;
 class MeshIdAdapter extends ArrayAdapter<MeshId> {
 
     /**
+     * Id of the peer to treat as this device (i.e. for styling and naming).
+     */
+    private MeshId deviceId;
+
+    /**
      * Inflates the parent {@link ArrayAdapter} and stores the context for use loading colours.
      *
      * @param context app context, need by parent class
@@ -24,11 +30,6 @@ class MeshIdAdapter extends ArrayAdapter<MeshId> {
     MeshIdAdapter(@NonNull Context context) {
         super(context, android.R.layout.simple_spinner_dropdown_item);
     }
-
-    /**
-     * Id of the peer to treat as this device (i.e. for styling and naming).
-     */
-    private MeshId deviceId;
 
     void setDeviceId(MeshId deviceId) {
         this.deviceId = deviceId;
